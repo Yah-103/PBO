@@ -1,0 +1,6 @@
+proyek_kalkulator/
+├── main.py              # File utama yang baru
+└── bangun_datar/        # Paket untuk class bentuk
+    ├── __init__.py      # File kosong (wajib untuk paket)
+    ├── lingkaran.py     # Modul untuk class Lingkaran
+    └── persegi.py       # Modul untuk class Persegi

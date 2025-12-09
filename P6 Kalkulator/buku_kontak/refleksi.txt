@@ -1,0 +1,9 @@
+Nama    : Yahya
+Nim     : 2411102441255
+Soal Refleksi: 
+Mengapa tidak ada output yang terlihat saat menjalankan file models/kontak.py secara langsung?
+Jawaban: 
+File models/kontak.py hanya berisi definisi class dan tidak memiliki kode eksekusi di level modul. 
+Class adalah blueprint/template untuk membuat objek. Tanpa membuat instance dari class dan memanggil method-nya, tidak akan ada output. 
+File ini dirancang untuk diimpor dan digunakan oleh file lain (seperti main.py), bukan untuk dijalankan sendiri. 
+Ini adalah praktik modular programming yang baik - memisahkan definisi (models) dari eksekusi (main).
