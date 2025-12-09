@@ -3,7 +3,6 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import List, Set
 
-
 @dataclass
 class TimeSlot:
     day: str
@@ -13,7 +12,6 @@ class TimeSlot:
     def overlaps(self, other: "TimeSlot") -> bool:
         return self.day == other.day and self.start < other.end and other.start < self.end
 
-
 @dataclass
 class Course:
     code: str
@@ -21,13 +19,11 @@ class Course:
     prerequisites: List[str]
     slots: List[TimeSlot]
 
-
 @dataclass
 class RegistrationData:
     student_name: str
     completed_courses: Set[str]
     requested_courses: List[Course]
-
 
 class ValidatorManager:   # Melanggar SRP, OCP, DIP
     def process_validation(self, data: RegistrationData) -> bool:
@@ -60,7 +56,6 @@ class IValidationRule(ABC):
     def error_message(self) -> str:
         ...
 
-
 class SksLimitRule(IValidationRule):
     def __init__(self, max_sks: int):
         self.max_sks = max_sks
@@ -76,7 +71,6 @@ class SksLimitRule(IValidationRule):
             self._error_message = f"Total SKS {total} melebihi batas {self.max_sks}."
             return False
         return True
-
 
 class PrerequisiteRule(IValidationRule):
     def __init__(self):
@@ -95,7 +89,6 @@ class PrerequisiteRule(IValidationRule):
                     )
                     return False
         return True
-
 
 class JadwalBentrokRule(IValidationRule):
     """Rule untuk mengecek bentrok jadwal antar mata kuliah."""
@@ -122,7 +115,6 @@ class JadwalBentrokRule(IValidationRule):
                             )
                             return False
         return True
-
 
 class RegistrationService:
     """
