@@ -20,7 +20,7 @@ menggunakan modul `logging`.
 3. Jalankan perintah:
 
    ```bash
-   python "code pertemuan 11.py"
+   python "registrasi_refactor.py"
 
 ### Histori Perubahan (Log)
 Kode dikelola menggunakan git. Lihat https://github.com/Yah-103/PBO
