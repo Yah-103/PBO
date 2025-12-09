@@ -1,21 +1,25 @@
+import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import List, Set
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
+)
+logger = logging.getLogger(__name__)
+
 @dataclass
 class TimeSlot:
-    """Representasi waktu jadwal mata kuliah."""
     day: str
     start: int
     end: int
 
     def overlaps(self, other: "TimeSlot") -> bool:
-        """Mengecek apakah dua jadwal saling bertabrakan."""
         return self.day == other.day and self.start < other.end and other.start < self.end
 
 @dataclass
 class Course:
-    """Representasi mata kuliah."""
     code: str
     sks: int
     prerequisites: List[str]
@@ -23,83 +27,66 @@ class Course:
 
 @dataclass
 class RegistrationData:
-    """Data registrasi mahasiswa."""
     student_name: str
     completed_courses: Set[str]
     requested_courses: List[Course]
 
 class IValidationRule(ABC):
-    """Interface untuk semua rule validasi."""
-
     @abstractmethod
     def validate(self, data: RegistrationData) -> bool:
-        """Menjalankan proses validasi."""
         pass
 
     @property
     @abstractmethod
     def error_message(self) -> str:
-        """Mengembalikan pesan error jika validasi gagal."""
         pass
 
 class SksLimitRule(IValidationRule):
-    """Rule untuk memvalidasi batas maksimum SKS."""
-
     def __init__(self, max_sks: int):
-        """Inisialisasi dengan batas maksimum SKS."""
         self.max_sks = max_sks
         self._error_message = ""
 
     @property
     def error_message(self) -> str:
-        """Pesan kesalahan validasi."""
         return self._error_message
 
     def validate(self, data: RegistrationData) -> bool:
-        """Validasi total SKS."""
         total = sum(c.sks for c in data.requested_courses)
+        logger.info("Validasi SKS: %s", total)
         if total > self.max_sks:
             self._error_message = f"Total SKS {total} melebihi batas {self.max_sks}."
-            print(self._error_message)
+            logger.warning(self._error_message)
             return False
         return True
 
 class PrerequisiteRule(IValidationRule):
-    """Rule untuk memvalidasi prasyarat mata kuliah."""
-
     def __init__(self):
-        """Inisialisasi rule prasyarat."""
         self._error_message = ""
 
     @property
     def error_message(self) -> str:
-        """Pesan error validasi."""
         return self._error_message
 
     def validate(self, data: RegistrationData) -> bool:
-        """Validasi prasyarat."""
+        logger.info("Validasi prasyarat")
         for course in data.requested_courses:
             for req in course.prerequisites:
                 if req not in data.completed_courses:
                     self._error_message = f"Prasyarat {req} untuk {course.code} belum diambil."
-                    print(self._error_message)
+                    logger.warning(self._error_message)
                     return False
         return True
 
 class JadwalBentrokRule(IValidationRule):
-    """Rule untuk memvalidasi bentrok jadwal."""
-
     def __init__(self):
-        """Inisialisasi rule jadwal."""
         self._error_message = ""
 
     @property
     def error_message(self) -> str:
-        """Pesan error jadwal."""
         return self._error_message
 
     def validate(self, data: RegistrationData) -> bool:
-        """Validasi jadwal bentrok."""
+        logger.info("Validasi jadwal")
         courses = data.requested_courses
         for i in range(len(courses)):
             for j in range(i + 1, len(courses)):
@@ -109,28 +96,30 @@ class JadwalBentrokRule(IValidationRule):
                     for sb in b.slots:
                         if sa.overlaps(sb):
                             self._error_message = f"Jadwal {a.code} dan {b.code} bentrok."
-                            print(self._error_message)
+                            logger.warning(self._error_message)
                             return False
         return True
 
 class RegistrationService:
-    """Koordinator proses registrasi mahasiswa."""
-
     def __init__(self, rules: list[IValidationRule]):
-        """Menerima daftar rule melalui Dependency Injection."""
         self.rules = rules
+        self._logger = logging.getLogger(self.__class__.__name__)
 
     def run_registration(self, data: RegistrationData) -> bool:
-        """Menjalankan semua validasi."""
-        print(f"\nMemulai registrasi untuk {data.student_name}")
+        self._logger.info("Memulai registrasi untuk %s", data.student_name)
         all_ok = True
+
         for rule in self.rules:
+            self._logger.info("Menjalankan rule: %s", rule.__class__.__name__)
             if not rule.validate(data):
                 all_ok = False
+                self._logger.warning("Validasi gagal: %s", rule.error_message)
+
         if all_ok:
-            print("Registrasi berhasil.")
+            self._logger.info("Registrasi berhasil")
         else:
-            print("Registrasi gagal.")
+            self._logger.warning("Registrasi gagal")
+
         return all_ok
 
 if __name__ == "__main__":
