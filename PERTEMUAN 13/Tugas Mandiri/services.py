@@ -16,6 +16,18 @@ class CashPayment(IPaymentProcessor):
         LOGGER.info(f"Menerima TUNAI sejumlah: Rp{amount:.0f}")
         return True
 
+class DebitCardPayment(IPaymentProcessor):
+    def process(self, amount: float) -> bool:
+        LOGGER.info(f"Memproses pembayaran KARTU DEBIT sejumlah: Rp{amount:.0f}")
+        card_number = input("Masukkan 4 digit terakhir kartu debit: ").strip()
+        if len(card_number) == 4 and card_number.isdigit():
+            LOGGER.info(f"Kartu debit ****{card_number} diverifikasi.")
+            LOGGER.info("Pembayaran kartu debit BERHASIL.")
+            return True
+        else:
+            LOGGER.error("Nomor kartu tidak valid. Pembayaran GAGAL.")
+            return False
+
 class ShoppingCart:
     """Mengelola item, kuantitas, dan total harga pesanan (SRP)."""
     def __init__(self):
