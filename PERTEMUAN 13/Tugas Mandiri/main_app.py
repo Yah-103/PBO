@@ -1,7 +1,7 @@
 # main_app.py
 import logging
 from repositories import ProductRepository
-from services import IPaymentProcessor, ShoppingCart, CashPayment
+from services import IPaymentProcessor, ShoppingCart, CashPayment, DebitCardPayment
 from models import Product
 
 LOGGER = logging.getLogger('MAIN_APP')
@@ -51,7 +51,7 @@ class PosApp:
         if success:
             LOGGER.info("TRANSAKSI BERHASIL.")
             self._print_receipt()
-            self.cart = ShoppingCart() # Reset cart
+            self.cart = ShoppingCart()
         else:
             LOGGER.error("TRANSAKSI GAGAL.")
 
@@ -68,7 +68,7 @@ if __name__ == "__main__":
 
     repo = ProductRepository()
 
-    payment_method = CashPayment()
+    payment_method = DebitCardPayment()
 
     app = PosApp(repository=repo, payment_processor=payment_method)
 
